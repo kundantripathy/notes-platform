@@ -1,0 +1,187 @@
+/* ── Page wrapper — overrides .container from theme.css ── */
+.page-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 28px 20px 48px;
+  box-sizing: border-box;
+}
+
+/* ── Two-column row: profile | products ── */
+.top-layout {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+/* ── Seller profile column ── */
+.seller-profile {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-sizing: border-box;
+  position: sticky;
+  top: 16px;
+}
+
+.seller-profile img {
+  width: 75px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+}
+
+.seller-avatar-fallback {
+  width: 75px;
+  height: 75px;
+  border-radius: 12px;
+  background: var(--green-900);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+
+.seller-name {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 10px 0 5px;
+  line-height: 1.3;
+  color: var(--green-900);
+}
+
+.seller-description {
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 0 0 12px;
+  color: var(--muted);
+  max-width: 180px;
+}
+
+/* ── Social icons ── */
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.social-icons a {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--green-900);
+  color: #fff;
+  transition: opacity .15s;
+}
+
+.social-icons a:hover { opacity: .8; }
+
+/* ── Message / Reviews buttons ── */
+.profile-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.profile-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--green-900);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.profile-btn:hover { background: var(--green-100); }
+
+/* ── Product section ── */
+.product-section {
+  width: 100%;
+  min-width: 0;
+}
+
+/* ── Category tabs ── */
+.home__tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.home__tab {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font: inherit;
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text);
+  transition: background .15s, color .15s, border-color .15s;
+}
+
+.home__tab:hover:not(.is-active) {
+  background: var(--green-100);
+  border-color: var(--green-100);
+}
+
+.home__tab.is-active {
+  background: var(--green-900);
+  border-color: var(--green-900);
+  color: #fff;
+}
+
+/* ── About Me — full width below top-layout ── */
+.about-section {
+  width: 100%;
+  margin-top: 32px;
+  padding-top: 4px;
+  box-sizing: border-box;
+}
+
+.about-section h2 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--green-900);
+  margin: 0 0 10px;
+}
+
+.about-section p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.75;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* ── Mobile ── */
+@media (max-width: 700px) {
+  .top-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .seller-profile {
+    position: static;
+  }
+
+  .about-section {
+    margin-top: 24px;
+  }
+}

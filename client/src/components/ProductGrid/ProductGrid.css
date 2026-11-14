@@ -1,0 +1,10 @@
+.pgrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  align-items: stretch;
+}
+
+@media (min-width: 480px) {
+  .pgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

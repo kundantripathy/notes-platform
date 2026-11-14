@@ -1,0 +1,7 @@
+.creator { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.creator__back { width: 30px; height: 30px; flex: 0 0 30px; border-radius: 50%; border: 1px solid var(--border); background: #fff; color: var(--green-900); display: grid; place-items: center; cursor: pointer; }
+.creator__avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex: 0 0 34px; }
+.creator__avatar--fallback { display: grid; place-items: center; background: var(--green-900); color: #fff; font-weight: 800; font-size: .9rem; }
+.creator__text { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.creator__text strong { font-size: .8rem; color: var(--green-900); }
+.creator__text span { font-size: .62rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
