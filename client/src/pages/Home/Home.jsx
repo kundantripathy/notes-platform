@@ -4,7 +4,6 @@ import { SendIcon, StarIcon, InstagramIcon, YoutubeIcon } from '../../components
 import { getProducts } from '../../services/productService.js';
 import { useSeller } from '../../services/useSeller.js';
 import { SELLER } from '../../data/seller.js';
-import { PRODUCTS } from '../../data/products.js';
 import './Home.css';
 
 const FILTERS = [
@@ -49,29 +48,20 @@ function SellerPanel({ seller }) {
   );
 }
 
-const FEATURED_ID = 'p1';
-
-function filterProducts(products, key) {
-  const byType = key === 'all' ? products
-    : key === 'video_call' ? products.filter((p) => p.type === 'video_call')
-    : products.filter((p) => p.type === 'digital');
-  return byType.filter((p) => p._id === FEATURED_ID);
-}
-
 export default function Home() {
   const apiSeller = useSeller();
   const seller = apiSeller || SELLER;
 
   const [filter, setFilter] = useState('all');
-  const [products, setProducts] = useState(() => filterProducts(PRODUCTS, 'all'));
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     getProducts(filter)
-      .then((p) => { if (!cancelled) setProducts(filterProducts(p, filter)); })
-      .catch(() => { if (!cancelled) setProducts(filterProducts(PRODUCTS, filter)); })
+      .then((p) => { if (!cancelled) setProducts(p); })
+      .catch(() => { if (!cancelled) setProducts([]); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [filter]);

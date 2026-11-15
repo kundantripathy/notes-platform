@@ -121,6 +121,62 @@
   padding: 8px 12px;
 }
 
+/* Prefill fields */
+.co-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.co-input {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font: inherit;
+  font-size: .82rem;
+  background: #fff;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color .15s;
+}
+.co-input:focus { outline: none; border-color: var(--green-600); }
+
+/* Coupon row */
+.co-coupon {
+  display: flex;
+  gap: 8px;
+}
+.co-coupon__input { flex: 1; letter-spacing: .05em; }
+.co-coupon__btn { padding: 9px 14px; font-size: .8rem; white-space: nowrap; }
+
+.co-coupon-applied {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--green-100);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: .8rem;
+  color: var(--green-900);
+}
+.co-coupon-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: .9rem;
+  padding: 0 2px;
+}
+.co-coupon-err {
+  font-size: .75rem;
+  color: var(--danger);
+  margin: -6px 0 0;
+}
+
+/* Saving row */
+.co-price-row--saving { color: var(--green-700); }
+.co-saving { font-weight: 600; color: var(--green-700); }
+
 /* CTA */
 .co-pay-btn {
   width: 100%;

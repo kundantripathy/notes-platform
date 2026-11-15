@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import CreatorBar from '../../components/CreatorBar/CreatorBar.jsx';
 import { DocIcon, VideoIcon, ShieldIcon, ClockIcon } from '../../components/Icons.jsx';
 import { getProduct } from '../../services/productService.js';
-import { PRODUCTS } from '../../data/products.js';
 import { formatINR } from '../../utils/format.js';
 import './ProductDetails.css';
 
@@ -19,12 +18,7 @@ export default function ProductDetails() {
     setError('');
     getProduct(id)
       .then((p) => { if (!cancelled) setProduct(p); })
-      .catch(() => {
-        if (cancelled) return;
-        const local = PRODUCTS.find((p) => p._id === id);
-        if (local) setProduct(local);
-        else setError('This product is not available.');
-      });
+      .catch(() => { if (!cancelled) setError('This product is not available.'); });
     return () => { cancelled = true; };
   }, [id]);
 

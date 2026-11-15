@@ -1,13 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { PRODUCTS } from '../../data/products.js';
-import { createOrder, verifyPayment } from '../../services/productService.js';
+import { getProduct, createOrder, verifyPayment, applyCoupon } from '../../services/productService.js';
 import { formatINR } from '../../utils/format.js';
 import CreatorBar from '../../components/CreatorBar/CreatorBar.jsx';
 import { ShieldIcon } from '../../components/Icons.jsx';
 import './Checkout.css';
 
-// Razorpay SDK is loaded once via a <script> tag injected into <head>.
 function loadRazorpaySDK() {
   return new Promise((resolve) => {
     if (window.Razorpay) return resolve(true);
@@ -22,17 +20,51 @@ function loadRazorpaySDK() {
 export default function Checkout() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const rzpRef = useRef(null);
+
   const [product, setProduct] = useState(null);
   const [status, setStatus] = useState('idle'); // idle | paying | success | error
   const [errorMsg, setErrorMsg] = useState('');
-  const rzpRef = useRef(null);
 
-  // Resolve product from static data (API fallback handled in ProductDetails already).
+  // Prefill fields
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+
+  // Coupon
+  const [couponCode, setCouponCode] = useState('');
+  const [coupon, setCoupon] = useState(null);   // { code, discountAmount, finalPrice }
+  const [couponStatus, setCouponStatus] = useState('idle'); // idle | checking | valid | invalid
+
   useEffect(() => {
-    const p = PRODUCTS.find((x) => x._id === id);
-    if (p) setProduct(p);
-    else setErrorMsg('Product not found.');
+    let cancelled = false;
+    getProduct(id)
+      .then((p) => { if (!cancelled) setProduct(p); })
+      .catch(() => { if (!cancelled) setErrorMsg('Product not found.'); });
+    return () => { cancelled = true; };
   }, [id]);
+
+  const finalPrice = coupon ? coupon.finalPrice : product?.sellingPrice ?? 0;
+  const savings = product ? product.originalPrice - finalPrice : 0;
+
+  async function handleApplyCoupon() {
+    if (!couponCode.trim()) return;
+    setCouponStatus('checking');
+    try {
+      const data = await applyCoupon(id, couponCode.trim());
+      setCoupon(data);
+      setCouponStatus('valid');
+    } catch (err) {
+      setCoupon(null);
+      setCouponStatus('invalid');
+    }
+  }
+
+  function handleRemoveCoupon() {
+    setCoupon(null);
+    setCouponCode('');
+    setCouponStatus('idle');
+  }
 
   async function handlePay() {
     setStatus('paying');
@@ -47,7 +79,7 @@ export default function Checkout() {
 
     let orderData;
     try {
-      orderData = await createOrder(id);
+      orderData = await createOrder(id, coupon?.code);
     } catch (err) {
       setErrorMsg(err.message || 'Could not create payment order. Please try again.');
       setStatus('error');
@@ -55,37 +87,21 @@ export default function Checkout() {
     }
 
     const options = {
-      // ── Merchant identity ──────────────────────────────────────────────────
-      // "name" and "image" here are the business name and logo shown in the
-      // Razorpay modal. The verified legal name on your Razorpay account
-      // (set in the Dashboard) takes precedence for regulated fields.
       key: orderData.keyId || import.meta.env.VITE_RAZORPAY_KEY_ID,
-      name: 'Aman Singh Nayak',
-      description: orderData.product.description || orderData.product.name,
-      image: '', // Set to your logo URL, e.g. 'https://yourdomain.com/logo.png'
-
-      // ── Order ──────────────────────────────────────────────────────────────
+      name: orderData.sellerName,
+      description: orderData.product.name.replace(/[^\x20-\x7E]/g, '').trim(),
+      image: '',
       order_id: orderData.order.id,
-      amount: orderData.order.amount,   // paise — set by server, not frontend
+      amount: orderData.order.amount,
       currency: orderData.order.currency,
-
-      // ── Pre-fill customer fields (optional, improves UX) ──────────────────
-      prefill: {
-        name: '',    // filled by customer at checkout
-        email: '',
-        contact: '',
-      },
-
-      // ── Notes visible in Razorpay Dashboard ───────────────────────────────
+      prefill: { name, email, contact: phone },
       notes: {
         product_id: orderData.product.id,
         product_name: orderData.product.name,
+        coupon: coupon?.code || '',
         purpose: 'Purchase of Digital Educational Notes and Study Materials',
       },
-
       theme: { color: '#0a2f2a' },
-
-      // ── Callbacks ─────────────────────────────────────────────────────────
       handler: async function (response) {
         try {
           await verifyPayment({
@@ -100,12 +116,7 @@ export default function Checkout() {
           setStatus('error');
         }
       },
-
-      modal: {
-        ondismiss: () => {
-          if (status !== 'success') setStatus('idle');
-        },
-      },
+      modal: { ondismiss: () => { if (status !== 'success') setStatus('idle'); } },
     };
 
     rzpRef.current = new window.Razorpay(options);
@@ -134,7 +145,7 @@ export default function Checkout() {
       <article className="co-card">
         <h1 className="co-title">Order Summary</h1>
 
-        {/* Product summary */}
+        {/* Product row */}
         <div className="co-product">
           <div className="co-product__thumb">
             {product.thumbnail
@@ -149,16 +160,64 @@ export default function Checkout() {
 
         <hr className="co-rule" />
 
+        {/* Prefill form */}
+        <div className="co-fields">
+          <input className="co-input" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} />
+          <input className="co-input" type="email" placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input className="co-input" type="tel" placeholder="Phone number" value={phone} onChange={(e) => setPhone(e.target.value)} />
+        </div>
+
+        <hr className="co-rule" />
+
+        {/* Coupon */}
+        {couponStatus !== 'valid' ? (
+          <div className="co-coupon">
+            <input
+              className="co-input co-coupon__input"
+              placeholder="Coupon code"
+              value={couponCode}
+              onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponStatus('idle'); }}
+            />
+            <button
+              className="btn btn--outline co-coupon__btn"
+              onClick={handleApplyCoupon}
+              disabled={couponStatus === 'checking' || !couponCode.trim()}
+            >
+              {couponStatus === 'checking' ? '…' : 'Apply'}
+            </button>
+          </div>
+        ) : (
+          <div className="co-coupon-applied">
+            <span>🎉 <strong>{coupon.code}</strong> applied — you save {formatINR(coupon.discountAmount)}</span>
+            <button className="co-coupon-remove" onClick={handleRemoveCoupon}>✕</button>
+          </div>
+        )}
+        {couponStatus === 'invalid' && <p className="co-coupon-err">Invalid or expired coupon.</p>}
+
+        <hr className="co-rule" />
+
         {/* Price breakdown */}
         <div className="co-price-row">
-          <span>Price</span>
+          <span>MRP</span>
           <s className="co-original">{formatINR(product.originalPrice)}</s>
         </div>
+        {product.discount > 0 && (
+          <div className="co-price-row co-price-row--saving">
+            <span>Product discount</span>
+            <span className="co-saving">− {formatINR(product.originalPrice - product.sellingPrice)}</span>
+          </div>
+        )}
+        {coupon && (
+          <div className="co-price-row co-price-row--saving">
+            <span>Coupon ({coupon.code})</span>
+            <span className="co-saving">− {formatINR(coupon.discountAmount)}</span>
+          </div>
+        )}
         <div className="co-price-row co-price-row--total">
           <span>You Pay</span>
           <span className="co-final">
-            {formatINR(product.sellingPrice)}
-            <em>{product.discount}% off</em>
+            {formatINR(finalPrice)}
+            {savings > 0 && <em>{Math.round((savings / product.originalPrice) * 100)}% off</em>}
           </span>
         </div>
 
@@ -178,12 +237,10 @@ export default function Checkout() {
           onClick={handlePay}
           disabled={status === 'paying'}
         >
-          {status === 'paying' ? 'Opening Payment…' : `Pay ${formatINR(product.sellingPrice)}`}
+          {status === 'paying' ? 'Opening Payment…' : `Pay ${formatINR(finalPrice)}`}
         </button>
 
-        <p className="co-note">
-          Powered by Razorpay · UPI, Cards, Net Banking, Wallets accepted
-        </p>
+        <p className="co-note">Powered by Razorpay · UPI, Cards, Net Banking, Wallets accepted</p>
       </article>
     </div>
   );
