@@ -1,4 +1,4 @@
-import { env, assertEnv } from '../config/env.js';
+import { assertEnv } from '../config/env.js';
 import { connectDB } from '../config/db.js';
 import mongoose from 'mongoose';
 import Product from '../models/Product.js';

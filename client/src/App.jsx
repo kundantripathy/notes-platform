@@ -1,4 +1,5 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import Footer from './components/Footer/Footer.jsx';
 import Home from './pages/Home/Home.jsx';
 import ProductDetails from './pages/ProductDetails/ProductDetails.jsx';
@@ -11,6 +12,12 @@ import MyDownloads from './pages/MyDownloads/MyDownloads.jsx';
 import AdminDashboard from './pages/AdminDashboard/AdminDashboard.jsx';
 
 export default function App() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    navigate('/', { replace: true });
+  }, []);
+
   return (
     <div className="app">
       <main className="app__main">

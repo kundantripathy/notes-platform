@@ -6,7 +6,6 @@ import { env } from '../config/env.js';
 import { seller } from '../config/seller.js';
 import { AppError } from '../middleware/errorHandler.js';
 
-// Simple in-memory coupon table — move to DB / env as needed.
 const COUPONS = {
   SAVE10: { type: 'percent', value: 10 },
   FLAT50: { type: 'flat',    value: 50 },
@@ -106,7 +105,6 @@ export async function verifyPayment(req, res, next) {
       throw new AppError('Payment verification failed', 400, 'SIGNATURE_MISMATCH');
     }
 
-    // TODO Phase 7: persist Order record to DB here.
     res.json({ success: true, paymentId: razorpay_payment_id, orderId: razorpay_order_id });
   } catch (err) { next(err); }
 }

@@ -1,4 +1,3 @@
-// Thin fetch wrapper. Auth uses an httpOnly cookie set by the server, so no tokens live in JS.
 const BASE = '/api';
 
 export class ApiError extends Error {

@@ -90,7 +90,6 @@ export default function Checkout() {
       key: orderData.keyId || import.meta.env.VITE_RAZORPAY_KEY_ID,
       name: orderData.sellerName,
       description: orderData.product.name.replace(/[^\x20-\x7E]/g, '').trim(),
-      image: '',
       order_id: orderData.order.id,
       amount: orderData.order.amount,
       currency: orderData.order.currency,

@@ -1,4 +1,3 @@
-// Seller profile shown on public pages. Override any value via env vars.
 export const seller = {
   name: process.env.SELLER_NAME || 'Mritunjay Kumar',
   headline: process.env.SELLER_HEADLINE || 'Topper 🏆 | Teacher 📚',

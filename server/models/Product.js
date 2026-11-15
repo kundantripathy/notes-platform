@@ -7,7 +7,7 @@ const productSchema = new mongoose.Schema(
     description: { type: String, trim: true, default: '' },
     type: { type: String, enum: ['digital', 'video_call'], default: 'digital', index: true },
     thumbnail: { type: String, default: '' },
-    pdfFileKey: { type: String, default: '', select: false }, // never exposed in public APIs
+    pdfFileKey: { type: String, default: '', select: false },
     originalPrice: { type: Number, required: true, min: 0 },
     sellingPrice: { type: Number, required: true, min: 0 },
     discount: { type: Number, min: 0, max: 100, default: 0 }, // percent, derived

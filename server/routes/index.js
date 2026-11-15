@@ -19,7 +19,4 @@ router.get('/seller', (req, res) => res.json({ success: true, seller }));
 router.use('/products', productRoutes);
 router.use('/checkout', checkoutRoutes);
 
-// Later phases mount: /auth (5), /downloads + /orders (8), /admin (9-10).
-// The Razorpay webhook (7) is mounted in app.js with a raw body.
-
 export default router;
